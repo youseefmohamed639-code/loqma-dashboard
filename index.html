@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loqma Kitchens - Executive Command Center Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Cairo', sans-serif; background-color: #0b0f19; color: #f3f4f6; }
+        .glass { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .glass-card { background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .glass-card:hover { border-color: rgba(245, 158, 11, 0.4); transform: translateY(-2px); transition: all 0.3s ease; }
+        .accent-gradient { background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%); }
+        .text-gradient { background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen">
+
+    <!-- Header Section -->
+    <header class="glass rounded-3xl p-6 mb-8 flex flex-col md:flex-row justify-between items-center gap-4 shadow-2xl">
+        <div class="flex items-center gap-4">
+            <div class="w-14 h-14 accent-gradient rounded-2xl flex items-center justify-center font-black text-2xl text-white shadow-lg shadow-orange-500/30">
+                🍔
+            </div>
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-white">لوحة قيادة سلالة مطابخ <span class="text-gradient">لقُمة (Loqma)</span></h1>
+                <p class="text-sm text-gray-400 mt-1">تشخيص الأداء التشغيلي والربحية للفترة (أبريل - سبتمبر 2026)</p>
+            </div>
+        </div>
+        
+        <!-- Interactive Controls -->
+        <div class="flex flex-wrap gap-3">
+            <select id="branchFilter" class="bg-gray-800 text-gray-200 text-sm rounded-xl px-4 py-2.5 border border-gray-700 focus:outline-none focus:border-amber-500 transition">
+                <option value="ALL">جميع الفروع (4 فروع)</option>
+                <option value="Dokki">فرع الدقي</option>
+                <option value="Tagamoa">فرع التجمع الخامس</option>
+                <option value="Nasr">فرع مدينة نصر</option>
+                <option value="Maadi">فرع المعادي</option>
+            </select>
+            <select id="channelFilter" class="bg-gray-800 text-gray-200 text-sm rounded-xl px-4 py-2.5 border border-gray-700 focus:outline-none focus:border-amber-500 transition">
+                <option value="ALL">جميع القنوات (3 قنوات)</option>
+                <option value="APP">التطبيق المباشر (APP)</option>
+                <option value="AGG">تطبيقات الوسيط (AGG)</option>
+                <option value="PHONE">الهاتف (PHONE)</option>
+            </select>
+            <button onclick="resetFilters()" class="bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 px-4 py-2.5 rounded-xl border border-amber-500/30 font-semibold text-sm transition">
+                إعادة ضبط
+            </button>
+        </div>
+    </header>
+
+    <!-- Executive Summary KPIs -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="glass-card rounded-2xl p-5 shadow-lg">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-xs text-gray-400 font-semibold">إجمالي الطلبات المسلّمة</p>
+                    <h3 class="text-2xl font-black text-white mt-1" id="kpiDelivered">9,717 <span class="text-xs font-normal text-gray-400">طلب</span></h3>
+                </div>
+                <span class="p-2 bg-emerald-500/10 text-emerald-400 rounded-xl text-lg">📦</span>
+            </div>
+            <p class="text-xs text-emerald-400 mt-3 font-medium">97.17% نسبة تسليم ناجحة</p>
+        </div>
+
+        <div class="glass-card rounded-2xl p-5 shadow-lg">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-xs text-gray-400 font-semibold">صافي الإيراد الإجمالي</p>
+                    <h3 class="text-2xl font-black text-white mt-1" id="kpiRevenue">3,088,623 <span class="text-xs font-normal text-gray-400">ج.م</span></h3>
+                </div>
+                <span class="p-2 bg-amber-500/10 text-amber-400 rounded-xl text-lg">💰</span>
+            </div>
+            <p class="text-xs text-amber-400 mt-3 font-medium">نمو شهري مستمر في الإيراد</p>
+        </div>
+
+        <div class="glass-card rounded-2xl p-5 shadow-lg">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-xs text-gray-400 font-semibold">الناتج التشغيلي (صافي الربح)</p>
+                    <h3 class="text-2xl font-black text-white mt-1" id="kpiProfit">670,307 <span class="text-xs font-normal text-gray-400">ج.م</span></h3>
+                </div>
+                <span class="p-2 bg-blue-500/10 text-blue-400 rounded-xl text-lg">📈</span>
+            </div>
+            <p class="text-xs text-blue-400 mt-3 font-medium">بعد خصم المصاريف الثابتة المتغيرة</p>
+        </div>
+
+        <div class="glass-card rounded-2xl p-5 shadow-lg">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-xs text-gray-400 font-semibold">نسبة التأخير الإجمالية</p>
+                    <h3 class="text-2xl font-black text-red-400 mt-1" id="kpiDelay">16.1%</h3>
+                </div>
+                <span class="p-2 bg-red-500/10 text-red-400 rounded-xl text-lg">⚠️</span>
+            </div>
+            <p class="text-xs text-red-400 mt-3 font-medium">قفزت من 1.1% إلى 30.7% في سبتمبر</p>
+        </div>
+    </section>
+
+    <!-- Main Analytics Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+        
+        <!-- Revenue & Operating Profit Trend -->
+        <div class="glass rounded-3xl p-6 lg:col-span-2 shadow-xl">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h2 class="text-lg font-bold text-white">تطور الإيرادات مقابل النتيجة التشغيلية</h2>
+                    <p class="text-xs text-gray-400">مقارنة نمو الطلبات بالربحية التشغيلية الصافية شهرياً</p>
+                </div>
+                <span class="text-xs bg-gray-800 border border-gray-700 px-3 py-1 rounded-full text-gray-300">أبريل - سبتمبر 2026</span>
+            </div>
+            <div class="h-72">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Branch Performance & Delay Analysis -->
+        <div class="glass rounded-3xl p-6 shadow-xl">
+            <h2 class="text-lg font-bold text-white mb-1">مقارنة الفروع: الأداء مقابل الخلل</h2>
+            <p class="text-xs text-gray-400 mb-6">الناتج التشغيلي مقابل نسبة التأخير %</p>
+            <div class="h-72">
+                <canvas id="branchChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deep-Dive Analytics Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+        
+        <!-- Channels Economics -->
+        <div class="glass rounded-3xl p-6 shadow-xl">
+            <h2 class="text-lg font-bold text-white mb-1">اقتصاديات قنوات البيع</h2>
+            <p class="text-xs text-gray-400 mb-4">متوسط ربح المساهمة لكل طلب مسلّم (EGP)</p>
+            <div class="h-64">
+                <canvas id="channelChart"></canvas>
+            </div>
+            <div class="mt-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-200">
+                💡 <strong>قناة الهاتف (PHONE):</strong> الأعلى مساهمة (175 ج.م/طلب) يليها Application (144.26 ج.م) ثم Aggregators (104.62 ج.م).
+            </div>
+        </div>
+
+        <!-- Root Cause Bottleneck Split -->
+        <div class="glass rounded-3xl p-6 lg:col-span-2 shadow-xl">
+            <h2 class="text-lg font-bold text-white mb-1">تشخيص الاختناق التشغيلي (التجهيز vs التوصيل)</h2>
+            <p class="text-xs text-gray-400 mb-4">تفكيك مراحل التأخير بين تحضير المطبخ ورحلة المندوب</p>
+            <div class="h-64">
+                <canvas id="bottleneckChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actionable Insights & Strategic Recommendations -->
+    <section class="glass rounded-3xl p-6 shadow-xl border border-amber-500/20">
+        <h2 class="text-xl font-black text-amber-400 mb-4 flex items-center gap-2">
+            🎯 الرؤى والتدخلات الاستراتيجية الموصى بها للإدارة العليا
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
+            <div class="p-4 rounded-2xl bg-gray-900/60 border border-gray-800">
+                <div class="text-amber-400 font-bold mb-2">1. حل اختناق المطبخ بفرع الدقي</div>
+                <p class="text-gray-300 text-xs leading-relaxed">
+                    ارتفع زمن التجهيز بالدقي من 18.3 إلى 35.4 دقيقة بسبب ضغط الطلبات بدون كفاءة سعة. <br>
+                    <strong>التدخل:</strong> تطبيق نظام Kitchen Display System (KDS) وإعادة هيكلة خط التحضير مع اختبار تعديل قائمة الطعام الأكثر تعقيداً.
+                </p>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-gray-900/60 border border-gray-800">
+                <div class="text-amber-400 font-bold mb-2">2. إعادة تحسين نطاق التجمع الخامس</div>
+                <p class="text-gray-300 text-xs leading-relaxed">
+                    ارتفع زمن التوصيل بالتجمع إلى 42.9 دقيقة لزيادة مساحة تغطية المناطق البعيدة (Zones) ذات التكلفة المرتفعة.<br>
+                    <strong>التدخل:</strong> تقليص نطاق التوصيل الجغرافي ذو الحافية المنخفضة وتطبيق رسوم ديناميكية للمناطق البعيدة.
+                </p>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-gray-900/60 border border-gray-800">
+                <div class="text-amber-400 font-bold mb-2">3. تعظيم القنوات المباشرة (APP / PHONE)</div>
+                <p class="text-gray-300 text-xs leading-relaxed">
+                    عمولات التطبيقات الوسيطة (AGG) تأكل الهامش الربحي (104.6 ج.م/طلب vs 175 ج.م للـ PHONE).<br>
+                    <strong>التدخل:</strong> تحويل العملاء للتطبيق المباشر عبر برامج الولاء الحصرية وتقليل العروض المخصومة غير المجدية.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive JavaScript Engine -->
+    <script>
+        // Chart Renderers
+        const ctxTrend = document.getElementById('trendChart').getContext('2d');
+        new Chart(ctxTrend, {
+            type: 'line',
+            data: {
+                labels: ['أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر'],
+                datasets: [
+                    { label: 'صافي الإيراد (ج.م)', data: [321365, 390714, 456267, 539508, 659196, 758663], borderColor: '#f59e0b', backgroundColor: 'rgba(245, 158, 11, 0.1)', fill: true, tension: 0.4 },
+                    { label: 'الناتج التشغيلي (ج.م)', data: [42785, 69315, 87503, 117715, 162515, 190474], borderColor: '#10b981', backgroundColor: 'transparent', borderDash: [5, 5], tension: 0.4 }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#9ca3af' } } }, scales: { x: { ticks: { color: '#9ca3af' } }, y: { ticks: { color: '#9ca3af' } } } }
+        });
+
+        const ctxBranch = document.getElementById('branchChart').getContext('2d');
+        new Chart(ctxBranch, {
+            type: 'bar',
+            data: {
+                labels: ['مدينة نصر', 'المعادي', 'الدقي', 'التجمع الخامس'],
+                datasets: [
+                    { label: 'الناتج التشغيلي (ج.م)', data: [209957, 193544, 184858, 81947], backgroundColor: '#3b82f6', borderRadius: 8 },
+                    { label: 'نسبة التأخير %', data: [1.64, 2.84, 27.93, 29.74], backgroundColor: '#ef4444', borderRadius: 8 }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#9ca3af' } } }, scales: { x: { ticks: { color: '#9ca3af' } }, y: { ticks: { color: '#9ca3af' } } } }
+        });
+
+        const ctxChannel = document.getElementById('channelChart').getContext('2d');
+        new Chart(ctxChannel, {
+            type: 'doughnut',
+            data: {
+                labels: ['التطبيق (APP)', 'الوسيط (AGG)', 'الهاتف (PHONE)'],
+                datasets: [{
+                    data: [144.26, 104.62, 175.00],
+                    backgroundColor: ['#f59e0b', '#ef4444', '#10b981']
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#9ca3af' } } } }
+        });
+
+        const ctxBottleneck = document.getElementById('bottleneckChart').getContext('2d');
+        new Chart(ctxBottleneck, {
+            type: 'bar',
+            data: {
+                labels: ['الدقي (DOKKI)', 'التجمع الخامس (TAGAMOA)', 'المعادي (MAADI)', 'مدينة نصر (NASR)'],
+                datasets: [
+                    { label: 'متوسط زمن التجهيز داخل المطبخ (دقيقة)', data: [28.14, 17.90, 18.02, 18.03], backgroundColor: '#8b5cf6', borderRadius: 6 },
+                    { label: 'متوسط زمن التوصيل مع المندوب (دقيقة)', data: [18.46, 34.76, 24.29, 18.89], backgroundColor: '#06b6d4', borderRadius: 6 }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#9ca3af' } } }, scales: { x: { ticks: { color: '#9ca3af' } }, y: { ticks: { color: '#9ca3af' } } } }
+        });
+
+        function resetFilters() {
+            document.getElementById('branchFilter').value = 'ALL';
+            document.getElementById('channelFilter').value = 'ALL';
+        }
+    </script>
+</body>
+</html>
