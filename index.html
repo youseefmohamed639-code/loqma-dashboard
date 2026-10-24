@@ -32,14 +32,14 @@
         
         <!-- Interactive Controls -->
         <div class="flex flex-wrap gap-3">
-            <select id="branchFilter" class="bg-gray-800 text-gray-200 text-sm rounded-xl px-4 py-2.5 border border-gray-700 focus:outline-none focus:border-amber-500 transition">
+            <select id="branchFilter" onchange="updateDashboard()" class="bg-gray-800 text-gray-200 text-sm rounded-xl px-4 py-2.5 border border-gray-700 focus:outline-none focus:border-amber-500 transition">
                 <option value="ALL">جميع الفروع (4 فروع)</option>
                 <option value="Dokki">فرع الدقي</option>
                 <option value="Tagamoa">فرع التجمع الخامس</option>
                 <option value="Nasr">فرع مدينة نصر</option>
                 <option value="Maadi">فرع المعادي</option>
             </select>
-            <select id="channelFilter" class="bg-gray-800 text-gray-200 text-sm rounded-xl px-4 py-2.5 border border-gray-700 focus:outline-none focus:border-amber-500 transition">
+            <select id="channelFilter" onchange="updateDashboard()" class="bg-gray-800 text-gray-200 text-sm rounded-xl px-4 py-2.5 border border-gray-700 focus:outline-none focus:border-amber-500 transition">
                 <option value="ALL">جميع القنوات (3 قنوات)</option>
                 <option value="APP">التطبيق المباشر (APP)</option>
                 <option value="AGG">تطبيقات الوسيط (AGG)</option>
@@ -94,7 +94,7 @@
                 </div>
                 <span class="p-2 bg-red-500/10 text-red-400 rounded-xl text-lg">⚠️</span>
             </div>
-            <p class="text-xs text-red-400 mt-3 font-medium">قفزت من 1.1% إلى 30.7% في سبتمبر</p>
+            <p class="text-xs text-red-400 mt-3 font-medium">متوسط فترة التشغيل</p>
         </div>
     </section>
 
@@ -136,7 +136,7 @@
                 <canvas id="channelChart"></canvas>
             </div>
             <div class="mt-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-200">
-                💡 <strong>قناة الهاتف (PHONE):</strong> الأعلى مساهمة (175 ج.م/طلب) يليها Application (144.26 ج.م) ثم Aggregators (104.62 ج.م).
+                💡 <strong>قناة الهاتف (PHONE):</strong> الأعلى مساهمة (175 ج.م/طلب).
             </div>
         </div>
 
@@ -161,46 +161,90 @@
                 <div class="text-amber-400 font-bold mb-2">1. حل اختناق المطبخ بفرع الدقي</div>
                 <p class="text-gray-300 text-xs leading-relaxed">
                     ارتفع زمن التجهيز بالدقي من 18.3 إلى 35.4 دقيقة بسبب ضغط الطلبات بدون كفاءة سعة. <br>
-                    <strong>التدخل:</strong> تطبيق نظام Kitchen Display System (KDS) وإعادة هيكلة خط التحضير مع اختبار تعديل قائمة الطعام الأكثر تعقيداً.
+                    <strong>التدخل:</strong> تطبيق نظام Kitchen Display System (KDS) وإعادة هيكلة خط التحضير.
                 </p>
             </div>
 
             <div class="p-4 rounded-2xl bg-gray-900/60 border border-gray-800">
                 <div class="text-amber-400 font-bold mb-2">2. إعادة تحسين نطاق التجمع الخامس</div>
                 <p class="text-gray-300 text-xs leading-relaxed">
-                    ارتفع زمن التوصيل بالتجمع إلى 42.9 دقيقة لزيادة مساحة تغطية المناطق البعيدة (Zones) ذات التكلفة المرتفعة.<br>
-                    <strong>التدخل:</strong> تقليص نطاق التوصيل الجغرافي ذو الحافية المنخفضة وتطبيق رسوم ديناميكية للمناطق البعيدة.
+                    ارتفع زمن التوصيل بالتجمع إلى 42.9 دقيقة لزيادة مساحة تغطية المناطق البعيدة ذات التكلفة المرتفعة.<br>
+                    <strong>التدخل:</strong> تقليص نطاق التوصيل الجغرافي وتطبيق رسوم ديناميكية للمناطق البعيدة.
                 </p>
             </div>
 
             <div class="p-4 rounded-2xl bg-gray-900/60 border border-gray-800">
                 <div class="text-amber-400 font-bold mb-2">3. تعظيم القنوات المباشرة (APP / PHONE)</div>
                 <p class="text-gray-300 text-xs leading-relaxed">
-                    عمولات التطبيقات الوسيطة (AGG) تأكل الهامش الربحي (104.6 ج.م/طلب vs 175 ج.م للـ PHONE).<br>
-                    <strong>التدخل:</strong> تحويل العملاء للتطبيق المباشر عبر برامج الولاء الحصرية وتقليل العروض المخصومة غير المجدية.
+                    عمولات التطبيقات الوسيطة (AGG) تأكل الهامش الربحي.<br>
+                    <strong>التدخل:</strong> تحويل العملاء للتطبيق المباشر عبر برامج الولاء وحصرية العروض.
                 </p>
             </div>
         </div>
     </section>
 
-    <!-- Interactive JavaScript Engine -->
+    <!-- Interactive JavaScript Engine with Filtering Logic -->
     <script>
-        // Chart Renderers
+        // قاعدة البيانات التجريبية التفصيلية المرتبطة بالفلاتر
+        const database = {
+            "ALL": {
+                delivered: "9,717",
+                revenue: "3,088,623",
+                profit: "670,307",
+                delay: "16.1%",
+                trendRev: [321365, 390714, 456267, 539508, 659196, 758663],
+                trendProfit: [42785, 69315, 87503, 117715, 162515, 190474],
+            },
+            "Dokki": {
+                delivered: "2,510",
+                revenue: "810,400",
+                profit: "184,858",
+                delay: "27.9%",
+                trendRev: [80000, 100000, 120000, 150000, 175000, 185400],
+                trendProfit: [10000, 15000, 22000, 35000, 48000, 54858],
+            },
+            "Tagamoa": {
+                delivered: "2,390",
+                revenue: "750,200",
+                profit: "81,947",
+                delay: "29.7%",
+                trendRev: [75000, 90000, 110000, 130000, 160000, 185200],
+                trendProfit: [5000, 8000, 12000, 18000, 20000, 18947],
+            },
+            "Nasr": {
+                delivered: "2,600",
+                revenue: "820,000",
+                profit: "209,957",
+                delay: "1.6%",
+                trendRev: [90000, 110000, 130000, 150000, 170000, 170000],
+                trendProfit: [15000, 22000, 30000, 42000, 50000, 50957],
+            },
+            "Maadi": {
+                delivered: "2,217",
+                revenue: "708,023",
+                profit: "193,544",
+                delay: "2.8%",
+                trendRev: [76365, 90714, 96267, 109508, 154196, 218063],
+                trendProfit: [12785, 14315, 23503, 22715, 44515, 75712],
+            }
+        };
+
+        // Initialize Charts
         const ctxTrend = document.getElementById('trendChart').getContext('2d');
-        new Chart(ctxTrend, {
+        const trendChart = new Chart(ctxTrend, {
             type: 'line',
             data: {
                 labels: ['أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر'],
                 datasets: [
-                    { label: 'صافي الإيراد (ج.م)', data: [321365, 390714, 456267, 539508, 659196, 758663], borderColor: '#f59e0b', backgroundColor: 'rgba(245, 158, 11, 0.1)', fill: true, tension: 0.4 },
-                    { label: 'الناتج التشغيلي (ج.م)', data: [42785, 69315, 87503, 117715, 162515, 190474], borderColor: '#10b981', backgroundColor: 'transparent', borderDash: [5, 5], tension: 0.4 }
+                    { label: 'صافي الإيراد (ج.م)', data: database.ALL.trendRev, borderColor: '#f59e0b', backgroundColor: 'rgba(245, 158, 11, 0.1)', fill: true, tension: 0.4 },
+                    { label: 'الناتج التشغيلي (ج.م)', data: database.ALL.trendProfit, borderColor: '#10b981', backgroundColor: 'transparent', borderDash: [5, 5], tension: 0.4 }
                 ]
             },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#9ca3af' } } }, scales: { x: { ticks: { color: '#9ca3af' } }, y: { ticks: { color: '#9ca3af' } } } }
         });
 
         const ctxBranch = document.getElementById('branchChart').getContext('2d');
-        new Chart(ctxBranch, {
+        const branchChart = new Chart(ctxBranch, {
             type: 'bar',
             data: {
                 labels: ['مدينة نصر', 'المعادي', 'الدقي', 'التجمع الخامس'],
@@ -213,7 +257,7 @@
         });
 
         const ctxChannel = document.getElementById('channelChart').getContext('2d');
-        new Chart(ctxChannel, {
+        const channelChart = new Chart(ctxChannel, {
             type: 'doughnut',
             data: {
                 labels: ['التطبيق (APP)', 'الوسيط (AGG)', 'الهاتف (PHONE)'],
@@ -226,7 +270,7 @@
         });
 
         const ctxBottleneck = document.getElementById('bottleneckChart').getContext('2d');
-        new Chart(ctxBottleneck, {
+        const bottleneckChart = new Chart(ctxBottleneck, {
             type: 'bar',
             data: {
                 labels: ['الدقي (DOKKI)', 'التجمع الخامس (TAGAMOA)', 'المعادي (MAADI)', 'مدينة نصر (NASR)'],
@@ -238,9 +282,30 @@
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#9ca3af' } } }, scales: { x: { ticks: { color: '#9ca3af' } }, y: { ticks: { color: '#9ca3af' } } } }
         });
 
+        // Dynamic Update Function triggered on change
+        function updateDashboard() {
+            const branch = document.getElementById('branchFilter').value;
+            const channel = document.getElementById('channelFilter').value;
+
+            // جلب البيانات بناءً على الفرع المحدد
+            const data = database[branch] || database["ALL"];
+
+            // تعديل قيم بطاقات الـ KPIs في الواجهة
+            document.getElementById('kpiDelivered').innerHTML = `${data.delivered} <span class="text-xs font-normal text-gray-400">طلب</span>`;
+            document.getElementById('kpiRevenue').innerHTML = `${data.revenue} <span class="text-xs font-normal text-gray-400">ج.م</span>`;
+            document.getElementById('kpiProfit').innerHTML = `${data.profit} <span class="text-xs font-normal text-gray-400">ج.م</span>`;
+            document.getElementById('kpiDelay').innerText = data.delay;
+
+            // تحديث خط الرسم البياني (Trend Chart) ببيانات الفرع الجديد
+            trendChart.data.datasets[0].data = data.trendRev;
+            trendChart.data.datasets[1].data = data.trendProfit;
+            trendChart.update();
+        }
+
         function resetFilters() {
             document.getElementById('branchFilter').value = 'ALL';
             document.getElementById('channelFilter').value = 'ALL';
+            updateDashboard();
         }
     </script>
 </body>
